@@ -10,7 +10,7 @@ app.get("/admin/getAllData",(req,res)=> {
     res.send("All Data Sent");
 })
 
-
+//testing
 app.get("/admin/deleteAll",(req,res)=> {
     res.send("Deleted all data");
 })
