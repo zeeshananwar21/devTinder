@@ -1,11 +1,24 @@
 const express = require('express');
 
+const {adminauth} = require('./middlewares/auth');
 const app = express();
 
 
-app.get("/user",(req,res)=> {
-    res.send({name:"Zeshan Anwar",age:"31"});
+app.use('/admin', adminauth)
+app.get("/admin/getAllData",(req,res)=> {
+    // route handler
+    res.send("All Data Sent");
 })
+
+
+app.get("/admin/deleteAll",(req,res)=> {
+    res.send("Deleted all data");
+})
+
+app.get("/login",(req,res)=> {
+    res.send("Login Page");
+})
+
 app.use("/",(req,res)=> {
     res.send("Hello from server");
 })
