@@ -25,12 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
-    validate(value) {
-        if(!validator.isEmail(value)) {
-            throw new Error("your password is not strong"+ value);
-        }
-    }
+    required: true
   },
   age: {
     type: Number,
