@@ -1,60 +1,19 @@
 const express = require('express');
 const connectDB = require('./config/database');
-const {adminauth} = require('./middlewares/auth');
-const User = require('./models/user');
-const bcrypt = require('bcrypt');
-const validateSignUpData = require("./utils/validation");
+
+const cookieParser = require("cookie-parser");
 const app = express();
 
 app.use(express.json()); //read the body from the body JSON which we sent from POSTMAN and convert it into object;
-app.post('/signup', async(req,res)=> {
+app.use(cookieParser()); //ready the cookies
 
-    
-    try {
-        //validation user data
-        validateSignUpData(req);
+const authRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
+const requestRouter = require('./routes/request');
 
-        //encrypt the data
-        const {firstName,lastName,gender,emailId,password} = req.body;
-        const passwordHash = await bcrypt.hash(password,10);
-        console.log(passwordHash);
-    const user = new User({
-        firstName,
-        lastName,
-        emailId,
-        gender,
-        password: passwordHash
-    });
-    await user.save();
-    res.send("User added successfully");
-    }
-    catch(err){
-        res.status(400).send('Something went wrong' + err.message);
-    }
-})
-
-app.post('/login', async(req,res)=> {
-
-    
-    try {
-       const {emailId,password} = req.body;
-       const user = await User.findOne({emailId: emailId});
-
-       if(!user) {
-        throw new Error("Invalid Credentials");
-       }
-       const isValidPassword = await bcrypt.compare(password, user.password);
-       if(isValidPassword){
-        res.send("Login Successful");
-       }
-       else {
-        res.status(400).send('Invalid Credentials');
-       }
-    }
-    catch(err){
-        res.status(400).send('Something went wrong' + err.message);
-    }
-})
+app.use('/', authRouter);
+app.use('/', profileRouter);
+app.use('/', requestRouter);
 
 app.patch('/user/:userId', async(req,res)=> {
     const userId = req.params?.userId;
