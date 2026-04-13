@@ -59,4 +59,37 @@ RequestRouter.post('/request/send/:status/:toUserId',userAuth,async(req,res)=> {
     
 })
 
+RequestRouter.post('/request/review/:status/:requestID',userAuth,async(req,res)=> {
+
+    try{
+        // status is accepted or rejected
+        // MS DHONI => request to Zeshan
+        // LoggedInUser => Zeshan(toUserId)
+        // status => interested
+
+        const LoggedInUser = req.user;
+        const {status, requestID} = req.params;
+
+        const allowedStatus = ['accepted','rejected'];
+        if(!allowedStatus.includes(status)){
+            throw new Error("Invalid status");
+        }
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestID,
+            toUserId: LoggedInUser._id,
+            status: 'interested'
+        })
+        if(!connectionRequest){
+            throw new Error("Connection not Found");
+        }
+        connectionRequest.status = status;
+        const data = await connectionRequest.save();
+        res.json({message: `Connection ${status}`,data});
+    }
+    catch(err) {
+        res.status(400).send('ERROR ' + err.message);
+    }
+
+})
+
 module.exports = RequestRouter;

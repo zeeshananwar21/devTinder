@@ -12,12 +12,10 @@ PATCH .profile/forgotpassword
 
 
 ##connectionrequestrouter
-POST /request/send/interested/:userID
-POST /request/send/ignored/:userID
-POST /request/review/accepted
-POST /request/review/rejected
+POST /request/send/:status/:userID
+POST /request/review/:status/:requestID
 
 ##userRouter
+GET /user/requests/received
 GET /user/connections
-GET /user/requests
 GET /user/feed
