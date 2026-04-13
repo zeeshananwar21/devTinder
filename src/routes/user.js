@@ -1,6 +1,7 @@
 const express = require('express');
 const { userAuth } = require('../middlewares/auth');
 const ConnectionRequest = require('../models/connectionRequest');
+const User = require('../models/user');
 
 const userRouter = express.Router();
 
@@ -39,6 +40,49 @@ userRouter.get('/user/connections', userAuth, async(req,res)=> {
         message: 'Data Fetched successfully',
         data: data
     })
+})
+
+// get all the feed for the loggedInUser
+userRouter.get('/feed',userAuth,async(req,res)=> {
+
+    try{
+        //send the feed for the loggedInUser except
+        // 1. his own
+        // 2. the connection which he sent or received
+        // 3. he ignored to other person
+        // 4. Already connected with other person
+        const loggedInUser = req.user;
+
+        const connectionRequest = await ConnectionRequest.find({
+            $or: [
+                {fromUserId: loggedInUser._id},
+                {toUserId: loggedInUser._id}
+            ]
+        }).select("fromUserId toUserId");
+        // .populate("fromUserId", "firstName")
+        // .populate("toUserId", "firstName");
+
+        const hideUsers = new Set();
+
+        connectionRequest.forEach(req => {
+            hideUsers.add(req.fromUserId.toString());
+            hideUsers.add(req.toUserId.toString());
+        });
+        console.log(hideUsers);
+        const users = await User.find({
+            $and: [
+                {_id: {$nin: Array.from(hideUsers)}},
+                {_id: {$ne: loggedInUser._id}}
+            ]
+        }).select("firstName lastName age gender about");
+        console.log(users);
+        res.json({ message: "Fetched",
+            data: users
+        });
+    }
+    catch(err) {
+        res.status(400).send('ERROR ' + err.message)
+    }
 })
 
 module.exports = userRouter;
