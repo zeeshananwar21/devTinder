@@ -2,8 +2,14 @@ const express = require('express');
 const connectDB = require('./config/database');
 
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const app = express();
 
+// installed cors so that we can use frontend and backend and whitelist origin frontend url
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}))
 app.use(express.json()); //read the body from the body JSON which we sent from POSTMAN and convert it into object;
 app.use(cookieParser()); //ready the cookies
 
